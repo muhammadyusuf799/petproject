@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Posts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Custom styles for positioning */
+      .search-box,
+      .add-post-btn {
+        position: fixed;
+        top: 20px; /* Adjust this to control vertical position */
+        z-index: 10; /* Make sure it stays on top */
+      }
+
+      .search-box {
+        left: 50%;
+        transform: translateX(-50%); /* Center horizontally */
+        width: 800px; /* Set a fixed width */
+      }
+
+      .add-post-btn {
+        right: 20px; /* Align to the right */
+        width: auto; /* Adjust width */
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <!-- Fixed Search Box -->
+    <div class="search-box">
+      <form method="GET" action="" class="w-full flex">
+        <input
+          type="text"
+          name="search"
+          placeholder="Search posts..."
+          value="{{ request.GET.search|default:'' }}"
+          class="w-full p-3 rounded-l-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+        <button
+          type="submit"
+          class="px-4 py-3 bg-blue-500 text-white rounded-r-md hover:bg-blue-600"
+        >
+          Search
+        </button>
+      </form>
+    </div>
+
+    <!-- Add Post Button -->
+    <div class="add-post-btn">
+      <button
+        id="addPostBtn"
+        class="px-4 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+      >
+        Add Post
+      </button>
+    </div>
+
+    <!-- Modal -->
+    <div
+      id="addPostModal"
+      class="fixed z-10 inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 hidden"
+    >
+      <div class="bg-white p-6 rounded-lg w-3/4">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Add New Post</h2>
+        <form id="addPostForm">
+          {% csrf_token %}
+          <div class="mb-4">
+            <label for="title" class="block text-sm font-medium text-gray-700"
+              >Title</label
+            >
+            <input
+              type="text"
+              id="title"
+              name="title"
+              class="w-full p-3 border border-gray-300 rounded-md"
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="description"
+              class="block text-sm font-medium text-gray-700"
+              >Description</label
+            >
+            <textarea
+              id="description"
+              name="description"
+              class="w-full p-3 border border-gray-300 rounded-md h-48"
+            ></textarea>
+          </div>
+          <div class="mb-4">
+            <label
+              for="author_name"
+              class="block text-sm font-medium text-gray-700"
+              >Author name</label
+            >
+            <input
+              type="text"
+              id="author_name"
+              name="author_name"
+              class="w-full p-3 border border-gray-300 rounded-md"
+            />
+          </div>
+          <button
+            type="submit"
+            class="px-4 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Save Post
+          </button>
+        </form>
+        <button id="closeModal" class="mt-4 text-gray-500 hover:text-gray-700">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- Script for Modal and Form Handling -->
+    <script>
+      document
+        .getElementById("addPostBtn")
+        .addEventListener("click", function () {
+          document.getElementById("addPostModal").classList.remove("hidden");
+        });
+
+      document
+        .getElementById("closeModal")
+        .addEventListener("click", function () {
+          document.getElementById("addPostForm").reset();
+          document.getElementById("addPostModal").classList.add("hidden");
+        });
+
+      document
+        .getElementById("addPostForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const title = document.getElementById("title").value;
+          const description = document.getElementById("description").value;
+          const author_name = document.getElementById("author_name").value;
+
+          fetch("/forum/posts/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": document.querySelector(
+                "[name=csrfmiddlewaretoken]"
+              ).value,
+            },
+            body: JSON.stringify({ title, description, author_name }),
+          })
+            .then((response) => {
+              if (response.ok) {
+                return response.json(); // Parse JSON if the response is successful
+              } else {
+                return response.json().then((data) => {
+                  throw new Error(
+                    data.detail ||
+                      "Failed to create the post. Check your input."
+                  );
+                });
+              }
+            })
+            .then((data) => {
+              alert("Post created successfully!");
+              document.getElementById("addPostForm").reset();
+              document.getElementById("addPostModal").classList.add("hidden");
+              window.location.reload(); // Reload to show the new post
+            })
+            .catch((error) => {
+              console.error("Error:", error.message);
+              alert(error.message); // Show error details in the alert
+            });
+        });
+    </script>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
+      <!-- Added pt-24 to offset the fixed search box -->
+      <!-- Cards Section -->
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      >
+        {% for post in posts %}
+        <a href="/forum/posts/{{ post.id }}">
+          <div class="bg-white shadow rounded-lg p-5 flex flex-col h-80">
+            <p class="text-sm text-gray-400">Post id: {{ post.id }}</p>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">
+              {{ post.title }}
+            </h2>
+            <!-- Truncate description to 40 words -->
+            <p class="text-sm text-gray-600 mb-4 flex-grow">
+              {{ post.description|truncatewords:18 }}
+            </p>
+
+            <!-- author_name and Date Section Fixed at the Bottom -->
+            <div class="text-xs text-gray-500 mt-auto">
+              <p>
+                By
+                <span class="font-medium text-black"
+                  >{{ post.author_name }}</span
+                >
+              </p>
+              <p>{{ post.created_at }}</p>
+            </div>
+          </div>
+        </a>
+        {% empty %}
+        <p class="col-span-full text-center text-gray-500">No posts found.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
