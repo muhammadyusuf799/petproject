@@ -13,6 +13,11 @@ class Post(models.Model):
         validators=[MinLengthValidator(limit_value=5)]
         )
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['title', 'description'], name='idx_title_description')
+        ]
+
     def __str__(self) -> str:
         return self.title
 
