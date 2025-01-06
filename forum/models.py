@@ -10,7 +10,6 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     author_name = models.CharField(
         max_length=30,
-        validators=[MinLengthValidator(limit_value=5)]
         )
 
     class Meta:
