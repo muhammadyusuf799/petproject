@@ -33,6 +33,7 @@
         <input
           type="text"
           name="search"
+          id="searchInput"
           placeholder="Search posts..."
           value="{{ request.GET.search|default:'' }}"
           class="w-full p-3 rounded-l-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -114,94 +115,37 @@
       </div>
     </div>
 
-    <!-- Script for Modal and Form Handling -->
-    <script>
-      // Make Modal visible by removing hidden class when Add Post button clicked
-      document
-        .getElementById("addPostBtn")
-        .addEventListener("click", function () {
-          document.getElementById("addPostModal").classList.remove("hidden");
-        });
-
-      // Make Modal invisible by adding hidden class when Close button clicked
-      document
-        .getElementById("closeModal")
-        .addEventListener("click", function () {
-          document.getElementById("addPostForm").reset();
-          document.getElementById("addPostModal").classList.add("hidden");
-        });
-
-      // Form handling and sending data to backend
-      document
-        .getElementById("addPostForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-
-          // get values of input fields
-          const title = document.getElementById("title").value;
-          const description = document.getElementById("description").value;
-          const author_name = document.getElementById("author_name").value;
-
-          // need to learn more
-          fetch("/forum/posts/", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": document.querySelector(
-                "[name=csrfmiddlewaretoken]"
-              ).value,
-            },
-            body: JSON.stringify({ title, description, author_name }),
-          })
-            .then((response) => {
-              if (response.ok) {
-                return response.json(); // Parse JSON if the response is successful
-              } else {
-                return response.json().then((data) => {
-                  throw new Error(
-                    data.detail ||
-                      "Failed to create the post. Check your input."
-                  );
-                });
-              }
-            })
-            .then((data) => {
-              alert("Post created successfully!");
-              document.getElementById("addPostForm").reset();
-              document.getElementById("addPostModal").classList.add("hidden");
-              window.location.reload(); // Reload to show the new post
-            })
-            .catch((error) => {
-              console.error("Error:", error.message);
-              alert(error.message); // Show error details in the alert
-            });
-        });
-    </script>
-
     <!-- Pagination and Post cards -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
+    <div id="mainPostDiv" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
       <!-- Added pt-24 to offset the fixed search box -->
 
       <div class="flex justify-center mt-4 mb-4">
         {% if page_obj.has_previous %}
-          <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md">
-            Previous
-          </a>
+        <a
+          href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}"
+          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
+        >
+          Previous
+        </a>
         {% endif %}
-  
+
         <span class="px-4 py-2 bg-gray-200 rounded-md">
           Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
         </span>
-  
+
         {% if page_obj.has_next %}
-          <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md">
-            Next
-          </a>
+        <a
+          href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}"
+          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
+        >
+          Next
+        </a>
         {% endif %}
       </div>
 
       <!-- Cards Section -->
       <div
+        id="postCards"
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
       >
         {% for post in posts %}
@@ -235,22 +179,28 @@
 
       <div class="flex justify-center mt-4 mb-4">
         {% if page_obj.has_previous %}
-          <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md">
-            Previous
-          </a>
+        <a
+          href="?page={{ page_obj.previous_page_number }}"
+          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
+        >
+          Previous
+        </a>
         {% endif %}
-  
+
         <span class="px-4 py-2 bg-gray-200 rounded-md">
           Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
         </span>
-  
+
         {% if page_obj.has_next %}
-          <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md">
-            Next
-          </a>
+        <a
+          href="?page={{ page_obj.next_page_number }}"
+          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
+        >
+          Next
+        </a>
         {% endif %}
       </div>
-
     </div>
+    <script src="/static/js/script.js"></script>
   </body>
 </html>
