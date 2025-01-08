@@ -36,14 +36,8 @@
           id="searchInput"
           placeholder="Search posts..."
           value="{{ request.GET.search|default:'' }}"
-          class="w-full p-3 rounded-l-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          class="w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
-        <button
-          type="submit"
-          class="px-4 py-3 bg-blue-500 text-white rounded-r-md hover:bg-blue-600"
-        >
-          Search
-        </button>
       </form>
     </div>
 
@@ -168,7 +162,7 @@
                   >{{ post.author_name }}</span
                 >
               </p>
-              <p>{{ post.created_at }}</p>
+              <p> Created at: {{ post.created_at }}</p>
             </div>
           </div>
         </a>
