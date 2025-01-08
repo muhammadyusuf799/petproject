@@ -110,7 +110,6 @@ function fetchData(url) {
         );
         upperPrev.textContent = "Prev";
         upperPrev.onclick = () => {
-          event.preventDefault();
           fetchData(data.pagination.prev);
         };
         upperPaginationDiv.appendChild(upperPrev);
@@ -118,7 +117,9 @@ function fetchData(url) {
 
       const upperPageNum = document.createElement("span");
       upperPageNum.classList.add("px-4", "py-2", "bg-gray-200", "rounded-md");
-      upperPageNum.textContent = `Page ${data.pagination.count} of ${data.pagination.count}`;
+      upperPageNum.textContent = `Page ${
+        data.pagination.offset / data.pagination.limit + 1
+      } of ${Math.ceil(data.pagination.count / data.pagination.limit)}`;
       upperPaginationDiv.appendChild(upperPageNum);
 
       if (data.pagination.next) {
@@ -132,7 +133,6 @@ function fetchData(url) {
         );
         upperNext.textContent = "Next";
         upperNext.onclick = () => {
-          event.preventDefault();
           fetchData(data.pagination.next);
         };
         upperPaginationDiv.appendChild(upperNext);
@@ -203,7 +203,6 @@ function fetchData(url) {
         postCards.appendChild(card);
       });
 
-
       const lowerPaginationDiv = document.createElement("div");
       lowerPaginationDiv.classList.add(
         "flex",
@@ -223,7 +222,6 @@ function fetchData(url) {
         );
         lowerPrev.textContent = "Prev";
         lowerPrev.onclick = () => {
-          event.preventDefault();
           fetchData(data.pagination.prev);
         };
         lowerPaginationDiv.appendChild(lowerPrev);
@@ -231,7 +229,9 @@ function fetchData(url) {
 
       const lowerPageNum = document.createElement("span");
       lowerPageNum.classList.add("px-4", "py-2", "bg-gray-200", "rounded-md");
-      lowerPageNum.textContent = `Page ${data.pagination.count} of ${data.pagination.count}`;
+      lowerPageNum.textContent = `Page ${
+        data.pagination.offset / data.pagination.limit + 1
+      } of ${Math.ceil(data.pagination.count / data.pagination.limit)}`;
       lowerPaginationDiv.appendChild(lowerPageNum);
 
       if (data.pagination.next) {
@@ -245,7 +245,6 @@ function fetchData(url) {
         );
         lowerNext.textContent = "Next";
         lowerNext.onclick = () => {
-          event.preventDefault();
           fetchData(data.pagination.next);
         };
         lowerPaginationDiv.appendChild(lowerNext);
@@ -257,6 +256,5 @@ function fetchData(url) {
     })
     .catch((error) => {
       console.error("Error fetching posts hello:", error);
-      // Handle errors appropriately, e.g., display an error message to the user
     });
 }

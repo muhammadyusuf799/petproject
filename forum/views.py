@@ -7,7 +7,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
-
+import math
 
 class PostViewSet(ModelViewSet):
     '''
@@ -36,7 +36,12 @@ class PostViewSet(ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())  # Apply filters
         paginator = self.pagination_class()  # DRF paginator
         paginated_queryset = paginator.paginate_queryset(queryset, request)  # Paginated queryset
-
+        limit = paginator.get_limit(request)
+        offset = paginator.get_offset(request)
+        count = paginator.count
+        current_page = math.ceil(offset / limit + 1)
+        total_pages = math.ceil(count/limit)
+        
         # Check if the request is an AJAX call
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             # Return JSON response for AJAX calls
@@ -47,7 +52,11 @@ class PostViewSet(ModelViewSet):
                 'pagination': {
                     'next':paginator.get_next_link(),
                     'prev':paginator.get_previous_link(),
-                    'count':paginator.count,
+                    'count':count,
+                    'limit':limit,
+                    'offset':offset,
+                    'current_page':current_page,
+                    'total_pages':total_pages,
                 }
             }
 
@@ -61,7 +70,11 @@ class PostViewSet(ModelViewSet):
                 'pagination': {
                     'next':paginator.get_next_link(),
                     'prev':paginator.get_previous_link(),
-                    'count':paginator.count,
+                    'count':count,
+                    'limit':limit,
+                    'offset':offset,
+                    'current_page':current_page,
+                    'total_pages':total_pages,
                 }
             }
             return render(request, 'index.html', context)
@@ -70,11 +83,6 @@ class PostViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         context = {
             'posts':serializer.data,
-            'pagination': {
-                'next':paginator.get_next_link(),
-                'prev':paginator.get_previous_link(),
-                'count':paginator.count,
-            }
         }
         return render(request, 'index.html', context)
                 
@@ -86,6 +94,7 @@ class PostViewSet(ModelViewSet):
         return render(request, 'post_detail.html', {
             'post':post
         })
+    
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer

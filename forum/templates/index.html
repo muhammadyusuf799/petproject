@@ -124,7 +124,7 @@
         {% endif %}
 
         <span class="px-4 py-2 bg-gray-200 rounded-md">
-          Page {{ pagination.count }} of {{ pagination.count }}
+          Page {{ pagination.current_page }} of {{ pagination.total_pages }}
         </span>
 
         {% if pagination.next %}
@@ -172,9 +172,9 @@
       </div>
 
       <div class="flex justify-center mt-4 mb-4">
-        {% if page_obj.has_previous %}
+        {% if pagination.prev %}
         <a
-          href="?page={{ page_obj.previous_page_number }}"
+          href="{{ pagination.prev }}"
           class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
         >
           Previous
@@ -182,12 +182,12 @@
         {% endif %}
 
         <span class="px-4 py-2 bg-gray-200 rounded-md">
-          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          Page {{ pagination.current_page }} of {{ pagination.total_pages }}
         </span>
 
-        {% if page_obj.has_next %}
+        {% if pagination.next %}
         <a
-          href="?page={{ page_obj.next_page_number }}"
+          href="{{ pagination.next }}"
           class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
         >
           Next
