@@ -168,7 +168,7 @@ function fetchData(url) {
           "text-gray-800",
           "mb-2"
         );
-        postTitle.textContent = post.title;
+        postTitle.textContent = `${post.title}`;
 
         const postDescription = document.createElement("p");
         postDescription.classList.add(
@@ -189,7 +189,7 @@ function fetchData(url) {
         authorName.textContent = `By ${authorSpan.innerHTML}`;
 
         const postDate = document.createElement("p");
-        postDate.textContent = post.created_at;
+        postDate.textContent = `Created at: ${post.created_at}`;
 
         authorSection.appendChild(authorName);
         authorSection.appendChild(postDate);
@@ -203,8 +203,57 @@ function fetchData(url) {
         postCards.appendChild(card);
       });
 
+
+      const lowerPaginationDiv = document.createElement("div");
+      lowerPaginationDiv.classList.add(
+        "flex",
+        "justify-center",
+        "mt-4",
+        "mb-4"
+      );
+
+      if (data.pagination.prev) {
+        const lowerPrev = document.createElement("a");
+        lowerPrev.classList.add(
+          "px-4",
+          "py-2",
+          "bg-gray-200",
+          "hover:bg-gray-300",
+          "rounded-md"
+        );
+        lowerPrev.textContent = "Prev";
+        lowerPrev.onclick = () => {
+          event.preventDefault();
+          fetchData(data.pagination.prev);
+        };
+        lowerPaginationDiv.appendChild(lowerPrev);
+      }
+
+      const lowerPageNum = document.createElement("span");
+      lowerPageNum.classList.add("px-4", "py-2", "bg-gray-200", "rounded-md");
+      lowerPageNum.textContent = `Page ${data.pagination.count} of ${data.pagination.count}`;
+      lowerPaginationDiv.appendChild(lowerPageNum);
+
+      if (data.pagination.next) {
+        const lowerNext = document.createElement("a");
+        lowerNext.classList.add(
+          "px-4",
+          "py-2",
+          "bg-gray-200",
+          "hover:bg-gray-300",
+          "rounded-md"
+        );
+        lowerNext.textContent = "Next";
+        lowerNext.onclick = () => {
+          event.preventDefault();
+          fetchData(data.pagination.next);
+        };
+        lowerPaginationDiv.appendChild(lowerNext);
+      }
+
       mainPostDiv.appendChild(upperPaginationDiv);
       mainPostDiv.appendChild(postCards);
+      mainPostDiv.appendChild(lowerPaginationDiv);
     })
     .catch((error) => {
       console.error("Error fetching posts hello:", error);
