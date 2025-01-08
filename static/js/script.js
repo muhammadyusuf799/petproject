@@ -53,100 +53,102 @@ document.getElementById("addPostForm").addEventListener("submit", function (e) {
 const postCards = document.getElementById("postCards");
 const searchInput = document.getElementById("searchInput");
 
+let debounceTimeout;
+
 searchInput.addEventListener("input", () => {
-  postCards.innerHTML = "";
-  performSearch();
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    postCards.innerHTML = "";
+    performSearch();
+  }, 800);
 });
 
 function performSearch() {
   const searchTerm = searchInput.value;
   const url = `/forum/posts/?page=&search=${searchTerm}`;
   console.log(url);
-  
 
-  setTimeout(() => {
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "X-Requested-With": "XMLHttpRequest", // Marks it as an AJAX request
-      },
+  fetch(url, {
+    method: "GET",
+    headers: {
+      "X-Requested-With": "XMLHttpRequest", // Marks it as an AJAX request
+    },
+  })
+    .then(async (response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        const data = await response.json();
+        throw new Error(data.detail || "Error occured!");
+      }
     })
-      .then(async (response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          const data = await response.json();
-          throw new Error(data.detail || "Error occured!");
-        }
-      })
-      .then((data) => {
-        postCards.innerHTML = ""; // Clear existing content before appending
-  
-        // Iterate through fetched posts and create HTML elements
-        data.forEach((post) => {
-          const card = document.createElement("a");
-          card.href = `/forum/posts/${post.id}`;
-  
-          const cardContent = document.createElement("div");
-          cardContent.classList.add(
-            "bg-white",
-            "shadow",
-            "rounded-lg",
-            "p-5",
-            "flex",
-            "flex-col",
-            "h-80"
-          );
-  
-          const postId = document.createElement("p");
-          postId.classList.add("text-sm", "text-gray-400");
-          postId.textContent = `Post id: ${post.id}`;
-  
-          const postTitle = document.createElement("h2");
-          postTitle.classList.add(
-            "text-lg",
-            "font-semibold",
-            "text-gray-800",
-            "mb-2"
-          );
-          postTitle.textContent = post.title;
-  
-          const postDescription = document.createElement("p");
-          postDescription.classList.add(
-            "text-sm",
-            "text-gray-600",
-            "mb-4",
-            "flex-grow"
-          );
-          postDescription.textContent = `${post.description.slice(0, 180)}...`; // Truncate to 180 characters
-  
-          const authorSection = document.createElement("div");
-          authorSection.classList.add("text-xs", "text-gray-500", "mt-auto");
-  
-          const authorName = document.createElement("p");
-          const authorSpan = document.createElement("span");
-          authorSpan.classList.add("font-medium", "text-black");
-          authorSpan.textContent = post.author_name;
-          authorName.textContent = `By ${authorSpan.innerHTML}`;
-  
-          const postDate = document.createElement("p");
-          postDate.textContent = post.created_at;
-  
-          authorSection.appendChild(authorName);
-          authorSection.appendChild(postDate);
-  
-          cardContent.appendChild(postId);
-          cardContent.appendChild(postTitle);
-          cardContent.appendChild(postDescription);
-          cardContent.appendChild(authorSection);
-  
-          card.appendChild(cardContent);
-          postCards.appendChild(card);
-        });
-      })
-      .catch((error) => {
-        console.error("Error fetching posts hello:", error);
-        // Handle errors appropriately, e.g., display an error message to the user
+    .then((data) => {
+      postCards.innerHTML = ""; // Clear existing content before appending
+
+      // Iterate through fetched posts and create HTML elements
+      data.forEach((post) => {
+        const card = document.createElement("a");
+        card.href = `/forum/posts/${post.id}`;
+
+        const cardContent = document.createElement("div");
+        cardContent.classList.add(
+          "bg-white",
+          "shadow",
+          "rounded-lg",
+          "p-5",
+          "flex",
+          "flex-col",
+          "h-80"
+        );
+
+        const postId = document.createElement("p");
+        postId.classList.add("text-sm", "text-gray-400");
+        postId.textContent = `Post id: ${post.id}`;
+
+        const postTitle = document.createElement("h2");
+        postTitle.classList.add(
+          "text-lg",
+          "font-semibold",
+          "text-gray-800",
+          "mb-2"
+        );
+        postTitle.textContent = post.title;
+
+        const postDescription = document.createElement("p");
+        postDescription.classList.add(
+          "text-sm",
+          "text-gray-600",
+          "mb-4",
+          "flex-grow"
+        );
+        postDescription.textContent = `${post.description.slice(0, 180)}...`; // Truncate to 180 characters
+
+        const authorSection = document.createElement("div");
+        authorSection.classList.add("text-xs", "text-gray-500", "mt-auto");
+
+        const authorName = document.createElement("p");
+        const authorSpan = document.createElement("span");
+        authorSpan.classList.add("font-medium", "text-black");
+        authorSpan.textContent = post.author_name;
+        authorName.textContent = `By ${authorSpan.innerHTML}`;
+
+        const postDate = document.createElement("p");
+        postDate.textContent = post.created_at;
+
+        authorSection.appendChild(authorName);
+        authorSection.appendChild(postDate);
+
+        cardContent.appendChild(postId);
+        cardContent.appendChild(postTitle);
+        cardContent.appendChild(postDescription);
+        cardContent.appendChild(authorSection);
+
+        card.appendChild(cardContent);
+        postCards.appendChild(card);
       });
-  }, 500);
+    })
+    .catch((error) => {
+      console.error("Error fetching posts hello:", error);
+      // Handle errors appropriately, e.g., display an error message to the user
+    });
 }
