@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Q
-from rest_framework.pagination import PageNumberPagination
+from django.http import JsonResponse
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ class PostViewSet(ModelViewSet):
     '''
     queryset = Post.objects.all() # initial queryset, the set of data from database
     serializer_class = PostSerializer # serializer, to serialize (convert python dictionaries and other structures to JSON format, or vise versa)
+    pagination_class = LimitOffsetPagination
     filter_backends = [SearchFilter] # DRF built-in filter customization class, SearchFilter class is used to filter customize depending on URL (?search=)
     search_fields = ['title', 'description'] # required by DRF built-in filter to point which fields in database are need to be searched
 
@@ -32,33 +34,47 @@ class PostViewSet(ModelViewSet):
         Custom list function to get the list of Posts
         '''
         queryset = self.filter_queryset(self.get_queryset())  # Apply filters
-        paginator = PageNumberPagination()  # DRF paginator
-        paginator.page_size = 20
-        page = paginator.paginate_queryset(queryset, request)  # Paginated queryset
+        paginator = self.pagination_class()  # DRF paginator
+        paginated_queryset = paginator.paginate_queryset(queryset, request)  # Paginated queryset
 
         # Check if the request is an AJAX call
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             # Return JSON response for AJAX calls
-            serializer = self.get_serializer(page if page else queryset, many=True, context={
-                'paginator':paginator,
-                'page_obj': paginator.page
-            })
-            return Response(serializer.data)
+            serializer = self.get_serializer(paginated_queryset, many = True)
+            
+            response_data = {
+                'posts':serializer.data,
+                'pagination': {
+                    'next':paginator.get_next_link(),
+                    'prev':paginator.get_previous_link(),
+                    'count':paginator.count,
+                }
+            }
+
+            return JsonResponse(response_data, safe=False)
 
         # For regular requests, render the HTML template
-        if page is not None:  # Paginate if possible
-            serializer = self.get_serializer(page, many=True)
+        if paginated_queryset is not None:  # Paginate if possible
+            serializer = self.get_serializer(paginated_queryset, many=True)
             context = {
-                'posts': serializer.data,
-                'paginator': paginator,
-                'page_obj': paginator.page,
+                'posts':serializer.data,
+                'pagination': {
+                    'next':paginator.get_next_link(),
+                    'prev':paginator.get_previous_link(),
+                    'count':paginator.count,
+                }
             }
             return render(request, 'index.html', context)
 
         # Render without pagination
         serializer = self.get_serializer(queryset, many=True)
         context = {
-            'posts': serializer.data,
+            'posts':serializer.data,
+            'pagination': {
+                'next':paginator.get_next_link(),
+                'prev':paginator.get_previous_link(),
+                'count':paginator.count,
+            }
         }
         return render(request, 'index.html', context)
                 

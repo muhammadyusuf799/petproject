@@ -50,43 +50,99 @@ document.getElementById("addPostForm").addEventListener("submit", function (e) {
     });
 });
 
-const postCards = document.getElementById("postCards");
-const searchInput = document.getElementById("searchInput");
+const mainPostDiv = document.getElementById("mainPostDiv");
 
 let debounceTimeout;
 
 searchInput.addEventListener("input", () => {
+  const searchInput = document.getElementById("searchInput");
+  const searchTerm = searchInput.value;
+  const url = `/forum/posts/?&search=${searchTerm}`;
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
-    postCards.innerHTML = "";
-    performSearch();
+    mainPostDiv.innerHTML = "";
+    fetchData(url);
   }, 800);
 });
 
-function performSearch() {
-  const searchTerm = searchInput.value;
-  const url = `/forum/posts/?page=&search=${searchTerm}`;
-  console.log(url);
-
+function fetchData(url) {
   fetch(url, {
     method: "GET",
     headers: {
       "X-Requested-With": "XMLHttpRequest", // Marks it as an AJAX request
     },
   })
-    .then(async (response) => {
+    .then((response) => {
       if (response.ok) {
         return response.json();
       } else {
-        const data = await response.json();
+        const data = response.json();
         throw new Error(data.detail || "Error occured!");
       }
     })
     .then((data) => {
-      postCards.innerHTML = ""; // Clear existing content before appending
+      const postCards = document.createElement("div");
+      postCards.classList.add(
+        "grid",
+        "grid-cols-1",
+        "sm:grid-cols-2",
+        "md:grid-cols-3",
+        "lg:grid-cols-4",
+        "gap-6"
+      );
+
+      const upperPaginationDiv = document.createElement("div");
+      upperPaginationDiv.classList.add(
+        "flex",
+        "justify-center",
+        "mt-4",
+        "mb-4"
+      );
+
+      if (data.pagination.prev) {
+        const upperPrev = document.createElement("a");
+        upperPrev.classList.add(
+          "px-4",
+          "py-2",
+          "bg-gray-200",
+          "hover:bg-gray-300",
+          "rounded-md"
+        );
+        upperPrev.textContent = "Prev";
+        upperPrev.onclick = () => {
+          event.preventDefault();
+          fetchData(data.pagination.prev);
+        };
+        upperPaginationDiv.appendChild(upperPrev);
+      }
+
+      const upperPageNum = document.createElement("span");
+      upperPageNum.classList.add("px-4", "py-2", "bg-gray-200", "rounded-md");
+      upperPageNum.textContent = `Page ${data.pagination.count} of ${data.pagination.count}`;
+      upperPaginationDiv.appendChild(upperPageNum);
+
+      if (data.pagination.next) {
+        const upperNext = document.createElement("a");
+        upperNext.classList.add(
+          "px-4",
+          "py-2",
+          "bg-gray-200",
+          "hover:bg-gray-300",
+          "rounded-md"
+        );
+        upperNext.textContent = "Next";
+        upperNext.onclick = () => {
+          event.preventDefault();
+          fetchData(data.pagination.next);
+        };
+        upperPaginationDiv.appendChild(upperNext);
+      }
+      console.log("mainpostdiv: ", mainPostDiv);
+      console.log("exists ", !!mainPostDiv);
 
       // Iterate through fetched posts and create HTML elements
-      data.forEach((post) => {
+      data.posts.forEach((post) => {
+        mainPostDiv.innerHTML = "";
         const card = document.createElement("a");
         card.href = `/forum/posts/${post.id}`;
 
@@ -146,6 +202,9 @@ function performSearch() {
         card.appendChild(cardContent);
         postCards.appendChild(card);
       });
+
+      mainPostDiv.appendChild(upperPaginationDiv);
+      mainPostDiv.appendChild(postCards);
     })
     .catch((error) => {
       console.error("Error fetching posts hello:", error);
