@@ -74,16 +74,16 @@ class PostViewSet(ModelViewSet):
         if paginated_queryset is not None:  # Paginate if possible
 
             # check the data requested in Redis, if exists return
-
             cached_data = cache.get(cache_key)
             if cached_data:
                 print("Caching from Redis...")
                 # return JsonResponse(cached_data, safe=False)
                 return render(request, 'index.html', cached_data)
+                # return JsonResponse(cached_data, safe=False)
 
             # if does not exist in Redis, get from database save to Redis and return
             serializer = self.get_serializer(paginated_queryset, many=True)
-            context = {
+            response_data = {
                 'posts':serializer.data,
                 'pagination': {
                     'next':paginator.get_next_link(),
@@ -99,9 +99,10 @@ class PostViewSet(ModelViewSet):
                     )
                 }
             }
-            cache.set(cache_key, context, timeout=360)
+            cache.set(cache_key, response_data, timeout=300)
             print("Fetching from database and saving to Redis...")
-            return render(request, 'index.html', context)
+            return render(request, 'index.html', context=response_data)
+            # return JsonResponse(response_data, safe=False)
 
         # Render without pagination
         # check requested data in Redis, if exists return
@@ -109,6 +110,7 @@ class PostViewSet(ModelViewSet):
         if cached_data:
             print("Fetching from Redis...")
             return render(request, 'index.html', context=cached_data)
+            # return JsonResponse(cached_data, safe=False)
         
         # else fetch from database, save to Redis and return
         serializer = self.get_serializer(queryset, many=True)
@@ -118,22 +120,32 @@ class PostViewSet(ModelViewSet):
         cache.set(cache_key, response_data, timeout=360)
         print("Fetching from database and saving to Redis, returning...")
         return render(request, 'index.html', context=response_data)
+        # return JsonResponse(response_data, safe=False)
                 
     def retrieve(self, request, *args, **kwargs):
         '''
         Customer retrieve function to get the post details
         '''
+
         post = self.get_object() # get single object from database
-        return render(request, 'post_detail.html', {
-            'post':post
-        })
+        comments = Comment.objects.all().filter(post=post)
+
+        post_data = PostSerializer(post).data
+        comments_data = CommentSerializer(comments, many=True).data
+        response_data = {
+            'post': post_data,
+            'comments':comments_data,
+        }
+        # serializer = self.get_serializer(post)
+        # return JsonResponse(serializer.data, safe=False)
+        return render(request, 'post_detail.html', context=response_data)
+        # return JsonResponse(response_data, safe=False)
+
+# class CommentViewSet(ModelViewSet):
+#     queryset = Comment.objects.all()
+#     serializer_class = CommentSerializer
     
-class CommentViewSet(ModelViewSet):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    
-    def list(self, request, *args, **kwargs):
-        comments = self.get_queryset()
-        return render(request, 'post_detail.html',{
-            'comments':comments
-        })
+#     def list(self, request, *args, **kwargs):
+#         comments = self.get_queryset()
+#         serializer = self.get_serializer(comments, many=True)
+#         return JsonResponse(serializer.data, safe=False)
