@@ -9,7 +9,7 @@ class Post(models.Model):
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     author_name = models.CharField(
-        max_length=30,
+        max_length=255,
         )
 
     class Meta:
@@ -22,6 +22,7 @@ class Post(models.Model):
 
 class Comment(models.Model):
     description = models.TextField()
+    author_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
