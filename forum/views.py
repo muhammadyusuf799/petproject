@@ -141,11 +141,6 @@ class PostViewSet(ModelViewSet):
         return render(request, 'post_detail.html', context=response_data)
         # return JsonResponse(response_data, safe=False)
 
-# class CommentViewSet(ModelViewSet):
-#     queryset = Comment.objects.all()
-#     serializer_class = CommentSerializer
-    
-#     def list(self, request, *args, **kwargs):
-#         comments = self.get_queryset()
-#         serializer = self.get_serializer(comments, many=True)
-#         return JsonResponse(serializer.data, safe=False)
+class CommentViewSet(ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer

@@ -13,7 +13,6 @@
         top: 20px; /* Adjust this to control vertical position */
         z-index: 10; /* Make sure it stays on top */
       }
-
       .search-box {
         left: 50%;
         transform: translateX(-50%); /* Center horizontally */
@@ -28,28 +27,27 @@
   </head>
   <body class="bg-gray-100">
     <!-- Search Box -->
-    <div class="search-box">
-      <form method="GET" action="" class="w-full flex">
-        <input
-          type="text"
-          name="search"
-          id="searchInput"
-          placeholder="Search posts..."
-          value="{{ request.GET.search|default:'' }}"
-          class="w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        />
-      </form>
+    <div class="max-w-[1220px] mx-auto">
+      <div class="flex gap-10 py-5">
+          <input
+            type="text"
+            name="search"
+            id="searchInput"
+            placeholder="Search posts..."
+            value="{{ request.GET.search|default:'' }}"
+            class="w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+          <button
+            id="addPostBtn"
+            class="px-4 shrink-0 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Add Post
+        </div>
+      </div>
     </div>
 
     <!-- Add Post Button -->
-    <div class="add-post-btn">
-      <button
-        id="addPostBtn"
-        class="px-4 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-      >
-        Add Post
-      </button>
-    </div>
+    
 
     <!-- Modal -->
     <div
@@ -112,7 +110,7 @@
     <!-- Pagination and Post cards -->
     <div
       id="mainPostDiv"
-      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24"
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10"
     >
       <!-- Added pt-24 to offset the fixed search box -->
 
