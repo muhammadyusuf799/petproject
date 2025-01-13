@@ -7,7 +7,7 @@ from .swagger import schema_view
 router = routers.DefaultRouter()
 
 router.register('posts', PostViewSet)
-router.register('comments', CommentViewSet)
+router.register('comments', CommentViewSet, basename='comments')
 
 urlpatterns = [
     # path('', include(router.urls)),
