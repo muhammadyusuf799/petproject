@@ -137,8 +137,6 @@ function fetchData(url) {
         };
         upperPaginationDiv.appendChild(upperNext);
       }
-      console.log("mainpostdiv: ", mainPostDiv);
-      console.log("exists ", !!mainPostDiv);
 
       // Iterate through fetched posts and create HTML elements
       data.posts.forEach((post) => {
