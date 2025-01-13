@@ -16,11 +16,9 @@ class CustomPagination(LimitOffsetPagination):
         return list(queryset[self.offset:self.offset + self.limit])
 
     def get_paginated_response(self, data):
-        print(self.total_pages)
-        print(self.current_page)
         visible_pages = self.get_visible_pages(self.current_page, self.total_pages)
         response = {
-            'posts':data,
+            'data':data,
             'pagination': {
                 'next': self.get_next_link(),
                 'prev': self.get_previous_link(),
