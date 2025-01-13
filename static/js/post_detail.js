@@ -10,10 +10,10 @@ document.getElementById("back-btn").addEventListener("click", function () {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    get_request(url);
+    getRequest(url);
 });
 
-function post_request(body_json) {
+function postRequest(body_json) {
     fetch("/forum/comments/", {
         method: "POST",
         headers: {
@@ -23,7 +23,7 @@ function post_request(body_json) {
     })
         .then((response) => {
             if (response.ok) {
-                get_request(url);
+                getRequest(url);
                 return response.json();
             } else {
                 return response.json().then((data) => {
@@ -40,7 +40,7 @@ function post_request(body_json) {
         });
 }
 
-function get_request(url) {
+function getRequest(url) {
     fetch(url, {
         method: "GET",
         headers: {
@@ -56,7 +56,7 @@ function get_request(url) {
             }
         })
         .then((data) => {
-            mainCommentsDiv.innerHTML = "";
+            mainCommentsDiv.innerHTML = ""; // clear the existing data to insert new
             data.comments.sort((a, b) => (a.parent ? 1 : -1));
             data.comments.forEach((comment) => {
                 if (!comment.parent) {
@@ -223,7 +223,7 @@ function generateReplyInput(commentDiv, comment_id) {
             post: postId,
             parent: comment_id,
         });
-        post_request(body_json);
+        postRequest(body_json);
     });
 
     commentDiv.appendChild(replyDiv);
@@ -247,7 +247,7 @@ addCommentBtn.addEventListener("click", function (e) {
         author_name: authorName,
         post: postId,
     });
-    post_request(body_json);
+    postRequest(body_json);
     commentInput.value = "";
     authorNameInput.value = "";
 });
