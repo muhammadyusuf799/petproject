@@ -22,13 +22,13 @@ class PostViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = Post.objects.all()
         search_term = self.request.query_params.get("search", None)
-        
+
         if search_term:
-            queryset = queryset.filter(Q(title__icontains=search_term) | Q(description__icontains = search_term))   
+            queryset = queryset.filter(Q(title__icontains=search_term) | Q(description__icontains = search_term))
             return queryset
 
         return queryset
-    
+
     def list(self, request, *args, **kwargs):
         '''
         Custom list function to get the list of Posts
@@ -77,9 +77,7 @@ class PostViewSet(ModelViewSet):
             cached_data = cache.get(cache_key)
             if cached_data:
                 print("Caching from Redis...")
-                # return JsonResponse(cached_data, safe=False)
                 return render(request, 'index.html', cached_data)
-                # return JsonResponse(cached_data, safe=False)
 
             # if does not exist in Redis, get from database save to Redis and return
             serializer = self.get_serializer(paginated_queryset, many=True)
@@ -110,8 +108,7 @@ class PostViewSet(ModelViewSet):
         if cached_data:
             print("Fetching from Redis...")
             return render(request, 'index.html', context=cached_data)
-            # return JsonResponse(cached_data, safe=False)
-        
+
         # else fetch from database, save to Redis and return
         serializer = self.get_serializer(queryset, many=True)
         response_data = {
@@ -120,27 +117,51 @@ class PostViewSet(ModelViewSet):
         cache.set(cache_key, response_data, timeout=360)
         print("Fetching from database and saving to Redis, returning...")
         return render(request, 'index.html', context=response_data)
-        # return JsonResponse(response_data, safe=False)
-                
+
     def retrieve(self, request, *args, **kwargs):
         '''
         Customer retrieve function to get the post details
         '''
 
         post = self.get_object() # get single object from database
-        comments = Comment.objects.all().filter(post=post)
-
-        post_data = PostSerializer(post).data
-        comments_data = CommentSerializer(comments, many=True).data
+        serializer = self.get_serializer(post)
         response_data = {
-            'post': post_data,
-            'comments':comments_data,
+            'post': serializer.data,
         }
-        # serializer = self.get_serializer(post)
-        # return JsonResponse(serializer.data, safe=False)
         return render(request, 'post_detail.html', context=response_data)
-        # return JsonResponse(response_data, safe=False)
 
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+    def list(self, request, *args, **kwargs):
+        post_id = request.query_params.get('post_id')
+
+        if not post_id:
+            return Response({'detail':'post_id is required'}, status=400)
+
+        queryset = Comment.objects.filter(post_id=post_id).order_by('-created_at')
+
+        serializer = self.get_serializer(queryset, many=True)
+        response = {
+            'comments':serializer.data,
+        }
+
+        return JsonResponse(response, safe=False)
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        parent_id = data.get('parent')
+
+        if parent_id:
+            try:
+                parent_comment = Comment.objects.get(id=parent_id)
+            except Comment.DoesNotExist:
+                return Response({'error':'Invalid parent_id: Comment not found'}, status=400)
+            
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
