@@ -13,6 +13,10 @@ class CustomPagination(LimitOffsetPagination):
         self.total_pages = math.ceil(self.count / self.limit)
         self.current_page = (self.offset // self.limit) + 1
 
+        if self.offset >= self.count:
+            self.offset = max(0, (self.total_pages - 1) * self.limit)
+            self.current_page = self.total_pages
+
         return list(queryset[self.offset:self.offset + self.limit])
 
     def get_paginated_response(self, data):
