@@ -19,12 +19,14 @@ from django.urls import path
 from django.urls.conf import include
 from django.conf.urls.static import static
 from django.conf import settings
+from .swagger import schema_view
 import debug_toolbar
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('forum/', include('forum.urls')),
     path('__debug__/',include(debug_toolbar.urls)),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
 
 if settings.DEBUG:
