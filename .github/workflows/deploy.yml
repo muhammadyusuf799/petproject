@@ -24,8 +24,8 @@ jobs:
 
     - name: Build and Push Docker Image
       run: |
-        docker build -t yourusername/yourproject:latest .
-        docker push yourusername/yourproject:latest
+        docker build -t masteryoda727/petproject:latest .
+        docker push masteryoad727/petproject:latest
 
     - name: SSH to Server and Deploy
       uses: appleboy/ssh-action@v0.1.5
@@ -34,6 +34,6 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          docker pull yourusername/yourproject:latest
+          docker pull masteryoda727/petproject:latest
           docker-compose down
           docker-compose up -d
