@@ -22,10 +22,10 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
-    - name: Build and Push Docker Image
-      run: |
-        docker build -t masteryoda727/petproject:latest .
-        docker push masteryoad727/petproject:latest
+    # - name: Build and Push Docker Image
+    #   run: |
+    #     docker build -t masteryoda727/petproject:latest .
+    #     docker push masteryoad727/petproject:latest
 
     - name: SSH to Server and Deploy
       uses: appleboy/ssh-action@v0.1.5
