@@ -29,11 +29,12 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
+          sudo rm -rf petproject
           # Change to your project directory
-          cd ./petproject || (
-              mkdir -p petproject &&
-              cd petproject
-          )
+          
+          mkdir -p petproject &&
+          cd petproject
+          
 
           # Clone the GitHub repository if not already cloned
           if [ ! -d ".git" ]; then
