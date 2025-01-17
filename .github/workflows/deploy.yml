@@ -22,11 +22,6 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
-    # - name: Build and Push Docker Image
-    #   run: |
-    #     docker build -t masteryoda727/petproject:latest .
-    #     docker push masteryoad727/petproject:latest
-
     - name: SSH to Server and Deploy
       uses: appleboy/ssh-action@v0.1.5
       with:
@@ -34,6 +29,22 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
+          # Change to your project directory
+          cd ./petproject || (
+              mkdir -p petproject &&
+              cd petproject
+          )
+
+          # Clone the GitHub repository if not already cloned
+          if [ ! -d ".git" ]; then
+              git clone https://github.com/muhammadyusuf799/petproject.git .
+          else
+              git pull origin master
+          fi
+
+          # Pull the latest Docker image
           sudo docker pull masteryoda727/petproject:latest
+
+          # Stop and remove existing containers, then recreate them
           sudo docker compose down
           sudo docker compose up -d
