@@ -29,11 +29,7 @@ jobs:
                   mkdir petproject
                   cd petproject
 
-                  if [ ! -d ".git" ]; then
-                      git clone https://github.com/muhammadyusuf799/petproject.git .
-                  else
-                      git pull origin master
-                  fi
+                  git clone https://github.com/muhammadyusuf799/petproject.git .
 
             - name: Build and Push Docker Image
               run: |
@@ -48,7 +44,7 @@ jobs:
                   key: ${{ secrets.SERVER_SSH_KEY }}
                   script: |
                       cd petproject
-                      
+
                       sudo docker pull masteryoda727/petproject:latest
 
                       sudo docker compose down
