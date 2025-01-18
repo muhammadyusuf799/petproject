@@ -26,8 +26,8 @@ services:
             - db
             - redis
         volumes:
-            - ./static:/app/static
-            - ./staticfiles:/app/staticfiles
+            # - ./static:/app/static
+            # - ./staticfiles:/app/staticfiles
         environment:
             DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
             DEBUG: ${DEBUG}
