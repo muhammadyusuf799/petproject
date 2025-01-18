@@ -19,7 +19,7 @@ services:
             context: ./
             dockerfile: Dockerfile
         container_name: django-petproject
-        # command: gunicorn --bind 0.0.0.0:8000 petproject.wsgi:application
+
         ports:  
             - "8000:8000"
         depends_on:
@@ -28,7 +28,7 @@ services:
         volumes:
             - ./static:/app/static
             - ./staticfiles:/app/staticfiles
-            - staticfiles_data: /app/staticfiles
+            - ./staticfiles_data:/app/staticfiles
         environment:
             DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
             DEBUG: ${DEBUG}
