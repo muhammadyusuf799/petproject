@@ -1,0 +1,51 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to DockerHub
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
+    - name: SSH to Server and Deploy
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          sudo rm -rf petproject
+          # Change to your project directory
+          
+          mkdir -p petproject &&
+          cd petproject
+          
+
+          # Clone the GitHub repository if not already cloned
+          if [ ! -d ".git" ]; then
+              git clone https://github.com/muhammadyusuf799/petproject.git .
+          else
+              git pull origin master
+          fi
+
+          # Pull the latest Docker image
+          sudo docker pull masteryoda727/petproject:latest
+
+          # Stop and remove existing containers, then recreate them
+          sudo docker compose down
+          sudo docker compose up -d
