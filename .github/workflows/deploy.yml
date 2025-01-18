@@ -38,7 +38,7 @@ jobs:
                       git clone https://github.com/muhammadyusuf799/petproject.git .
 
                       git checkout origin/master
-                      
+
                       docker build -t masteryoda727/petproject:latest .
                       docker push masteryoda727/petproject:latest
 
@@ -46,4 +46,5 @@ jobs:
                       sudo docker compose up -d --build
 
                       sudo docker exec django-petproject python manage.py migrate
+                      sudo rm -rf /app/staticfiles/*
                       sudo docker exec django-petproject python manage.py collectstatic --noinput
