@@ -22,20 +22,6 @@ jobs:
                   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
               run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
-            - name: Pull Project From GitHub
-              run: |
-                  sudo rm -rf petproject
-
-                  mkdir petproject
-                  cd petproject
-
-                  git clone https://github.com/muhammadyusuf799/petproject.git .
-
-            - name: Build and Push Docker Image
-              run: |
-                  docker build -t masteryoda727/petproject:latest .
-                  docker push masteryoda727/petproject:latest
-
             - name: SSH to Server and Deploy
               uses: appleboy/ssh-action@v0.1.5
               with:
@@ -43,11 +29,15 @@ jobs:
                   username: ${{ secrets.SERVER_USER }}
                   key: ${{ secrets.SERVER_SSH_KEY }}
                   script: |
-                      cd /home/muhammad/petproject
+                      sudo rm -rf petproject
+
+                      mkdir petproject
+
+                      cd petproject
+
+                      git clone https://github.com/muhammadyusuf799/petproject.git .
 
                       sudo docker pull masteryoda727/petproject:latest
 
                       sudo docker compose down
-                      sudo docker compose up --build -d
-                      sudo docker exec django-petproject python manage.py collectstatic --noinput
-                      sudo docker exec django-petproject python manage.py migrate
+                      sudo docker compose up -d
