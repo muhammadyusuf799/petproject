@@ -40,11 +40,10 @@ jobs:
                       git checkout origin/master
 
                       docker build -t masteryoda727/petproject:latest .
-                      docker push masteryoda727/petproject:latest
 
                       sudo docker compose down
                       sudo docker compose up -d --build
 
                       sudo docker exec django-petproject python manage.py migrate
-
+                      sudo docker exec django-petproject mkdir -p /app/staticfiles
                       sudo docker exec django-petproject python manage.py collectstatic --noinput
