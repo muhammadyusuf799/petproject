@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     getRequest(url);
 });
 
+
 function postRequest(body_json) {
     fetch("/forum/comments/", {
         method: "POST",
