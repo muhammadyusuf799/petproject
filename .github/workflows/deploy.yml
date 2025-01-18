@@ -33,8 +33,9 @@ jobs:
 
             - name: Build and Push Docker Image
               run: |
-                  docker build -t masteryoda727/petproject:latest .
-                  docker push masteryoda727/petproject:latest
+                  IMAGE_TAG=$(git rev-parse --short HEAD)
+                  docker build -t masteryoda727/petproject:$IMAGE_TAG .
+                  docker push masteryoda727/petproject:$IMAGE_TAG
 
             - name: SSH to Server and Deploy
               uses: appleboy/ssh-action@v0.1.5
@@ -43,9 +44,11 @@ jobs:
                   username: ${{ secrets.SERVER_USER }}
                   key: ${{ secrets.SERVER_SSH_KEY }}
                   script: |
-                      cd petproject
+                      cd /home/muhammad/petproject
 
                       sudo docker pull masteryoda727/petproject:latest
 
                       sudo docker compose down
                       sudo docker compose up -d
+                      sudo docker exec django-petproject python manage.py collectstatic --noinput
+                      sudo docker exec django-petproject python manage.py migrate
