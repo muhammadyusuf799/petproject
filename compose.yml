@@ -28,6 +28,7 @@ services:
         volumes:
             - ./static:/app/static
             - ./staticfiles:/app/staticfiles
+            - staticfiles_data: /app/staticfiles
         environment:
             DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
             DEBUG: ${DEBUG}
@@ -42,3 +43,4 @@ services:
             - .env
 volumes:
     postgres_data:
+    staticfiles_data:
