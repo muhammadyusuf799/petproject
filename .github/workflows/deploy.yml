@@ -25,6 +25,8 @@ jobs:
             - name: Pull Project From GitHub
               run: |
                   sudo rm -rf petproject
+
+                  mkdir petproject
                   cd petproject
 
                   if [ ! -d ".git" ]; then
