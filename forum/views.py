@@ -134,6 +134,10 @@ class PostViewSet(ModelViewSet):
         serializer.save()
         cache.delete_pattern("posts:*")  # Удаляем кеш всех страниц
 
+    def destroy(self, request, *args, **kwargs):
+        cache.delete_pattern("posts:*")  # Удаляем кеш всех страниц
+        return super().destroy(request, *args, **kwargs)
+
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
