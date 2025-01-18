@@ -37,6 +37,8 @@ jobs:
 
                       git clone https://github.com/muhammadyusuf799/petproject.git .
 
+                      git checkout origin/master
+                      
                       docker build -t masteryoda727/petproject:latest .
                       docker push masteryoda727/petproject:latest
 

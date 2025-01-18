@@ -12,7 +12,6 @@ document.getElementById("back-btn").addEventListener("click", function () {
 
 document.getElementById("delete-btn").addEventListener("click", function () {
     deleteRequest();
-    
 });
 
 document.addEventListener("DOMContentLoaded", () => {
