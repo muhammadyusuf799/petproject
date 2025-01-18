@@ -10,6 +10,11 @@ document.getElementById("back-btn").addEventListener("click", function () {
     window.location.href = "/forum/posts/";
 });
 
+document.getElementById("delete-btn").addEventListener("click", function () {
+    deleteRequest();
+    
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     getRequest(url);
 });
@@ -70,6 +75,26 @@ function getRequest(url) {
         .catch((error) => {
             console.error("Error fetching comments:", error.message);
         });
+}
+
+function deleteRequest() {
+    fetch(`/forum/posts/${postId}/`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => {
+            if (response.ok) {
+                alert("Post deleted successfully");
+                window.location.href = "/forum/posts/";
+            } else {
+                throw new Error(
+                    data.detail || "Post did not deleted. Error occured!"
+                );
+            }
+        })
+        .catch((error) => console.error("Error:", error));
 }
 
 function appendComment(comment) {
@@ -150,8 +175,6 @@ function appendReply(reply) {
     replyDiv.appendChild(replyId);
     replyDiv.appendChild(replyDesciprion);
     replyDiv.appendChild(author);
-
-    console.log(reply.parent);
 
     const mainRepliesDiv = document.querySelector(
         `.main-replies-div[data-comment="${reply.parent}"]`
