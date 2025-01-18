@@ -45,5 +45,5 @@ jobs:
                       sudo docker compose up -d --build
 
                       sudo docker exec django-petproject python manage.py migrate
-                      sudo docker exec django-petproject mkdir -p /app/staticfiles
+
                       sudo docker exec django-petproject python manage.py collectstatic --noinput
